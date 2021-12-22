@@ -1,0 +1,22 @@
+[
+    {
+        "id": "00AABB",
+            "nombre": "Microondas",
+            "color": "blanco",
+            "precio": 30000.00,
+            "stock": 10,
+            "codigo": "M1CR0",
+            "publicado": true,
+            "fechaDeCreacion": "31-01-2021"
+        },
+        {
+            "id": "kjgh83nd",
+            "nombre": "Playstation 5",
+            "color": "blanco",
+            "precio": 200000.00,
+            "stock": 100,
+            "codigo": "PS5",
+            "publicado": true,
+            "fechaDeCreacion": "22-12-2021"
+        }
+    ]
