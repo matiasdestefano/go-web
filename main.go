@@ -26,10 +26,55 @@ func main() {
 	router.GET("/user/:name", ShowName)
 
 	router.GET("/productos", GetAll)
+	router.GET("/productos/:id", handlerBuscarProductoID)
 	router.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
 func GetAll(c *gin.Context) {
+	productos := obtenerProductos()
+	prodID := c.Query("id")
+	if prodID != "" {
+		for _, p := range productos {
+			if p.Id == prodID {
+				c.JSON(http.StatusOK, gin.H{
+					"producto": p,
+				})
+				return
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"productos": productos,
+	})
+}
+
+func ShowName(c *gin.Context) {
+	name := c.Param("name")
+	texto := fmt.Sprintf("Hola, %s", name)
+	c.JSON(http.StatusOK, gin.H{"message": texto})
+}
+
+func handlerBuscarProductoID(context *gin.Context) {
+	var existe bool
+	productos := obtenerProductos()
+	idProd := context.Param("id")
+	if idProd != "" {
+		for _, p := range productos {
+			if p.Id == idProd {
+				context.JSON(http.StatusOK, gin.H{
+					"producto": p,
+				})
+			}
+		}
+		existe = false
+	}
+	if !existe {
+		context.JSON(http.StatusNotFound, "El producto no existe.")
+	}
+}
+
+func obtenerProductos() []producto {
 	productos := []producto{}
 	jsonData, err := os.ReadFile("./products.json")
 	if err != nil {
@@ -43,13 +88,5 @@ func GetAll(c *gin.Context) {
 		os.Exit(1)
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"productos": productos,
-	})
-}
-
-func ShowName(c *gin.Context) {
-	name := c.Param("name")
-	texto := fmt.Sprintf("Hola, %s", name)
-	c.JSON(http.StatusOK, gin.H{"message": texto})
+	return productos
 }
