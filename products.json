@@ -1,6 +1,6 @@
 [
     {
-        "id": "00AABB",
+        "id": 1,
             "nombre": "Microondas",
             "color": "blanco",
             "precio": 30000.00,
@@ -10,7 +10,7 @@
             "fechaDeCreacion": "31-01-2021"
         },
         {
-            "id": "kjgh83nd",
+            "id": 2,
             "nombre": "Playstation 5",
             "color": "blanco",
             "precio": 200000.00,
