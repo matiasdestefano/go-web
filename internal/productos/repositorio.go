@@ -7,8 +7,8 @@ import (
 
 type Repository interface {
 	GetAll() ([]Producto, error)
-	Store(Producto)
-	LastID() int
+	Store(Producto) (Producto, error)
+	LastID() (int, error)
 }
 
 type Producto struct {
@@ -28,10 +28,29 @@ var lastID int
 type repository struct{}
 
 func NewRepository() Repository {
+	products, err := readFile()
+	if err != nil {
+		return &repository{}
+	}
+	listaProductos = products
 	return &repository{}
 }
 
 func (r *repository) GetAll() ([]Producto, error) {
+	return listaProductos, nil
+}
+
+func (r *repository) Store(p Producto) (Producto, error) {
+	listaProductos = append(listaProductos, p)
+	return p, nil
+}
+
+func (r *repository) LastID() (int, error) {
+	lastID = listaProductos[len(listaProductos)-1].Id
+	return lastID, nil
+}
+
+func readFile() ([]Producto, error) {
 	productos := []Producto{}
 	jsonData, err := os.ReadFile("./products.json")
 	if err != nil {
@@ -42,14 +61,7 @@ func (r *repository) GetAll() ([]Producto, error) {
 	if errJson != nil {
 		return productos, err
 	}
+
+	listaProductos = productos
 	return productos, nil
-}
-
-func (r *repository) Store(p Producto) {
-	listaProductos = append(listaProductos, p)
-}
-
-func (r *repository) LastID() int {
-	lastID = listaProductos[len(listaProductos)-1].Id
-	return lastID
 }
