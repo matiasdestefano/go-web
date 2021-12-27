@@ -1,22 +1,52 @@
 [
-    {
-        "id": 1,
-            "nombre": "Microondas",
-            "color": "blanco",
-            "precio": 30000.00,
-            "stock": 10,
-            "codigo": "M1CR0",
-            "publicado": true,
-            "fechaDeCreacion": "31-01-2021"
-        },
-        {
-            "id": 2,
-            "nombre": "Playstation 5",
-            "color": "blanco",
-            "precio": 200000.00,
-            "stock": 100,
-            "codigo": "PS5",
-            "publicado": true,
-            "fechaDeCreacion": "22-12-2021"
-        }
-    ]
+ {
+  "id": 1,
+  "nombre": "Microondas",
+  "color": "blanco",
+  "precio": 30000,
+  "stock": 10,
+  "codigo": "M1CR0",
+  "publicado": false,
+  "fechaDeCreacion": "31-01-2021"
+ },
+ {
+  "id": 2,
+  "nombre": "Playstation 5",
+  "color": "blanco",
+  "precio": 200000,
+  "stock": 100,
+  "codigo": "PS5",
+  "publicado": true,
+  "fechaDeCreacion": "22-12-2021"
+ },
+ {
+  "id": 3,
+  "nombre": "Samsung S21",
+  "color": "Gris",
+  "precio": 110000,
+  "stock": 23,
+  "codigo": "SMSNGS21",
+  "publicado": true,
+  "fechaDeCreacion": "31-03-2021"
+ },
+ {
+  "id": 4,
+  "nombre": "Termo Stanley",
+  "color": "Verde",
+  "precio": 4000,
+  "stock": 160,
+  "codigo": "M8",
+  "publicado": true,
+  "fechaDeCreacion": "22-12-2021"
+ },
+ {
+  "id": 5,
+  "nombre": "Botella térmica",
+  "color": "Amarillo",
+  "precio": 500,
+  "stock": 305,
+  "codigo": "BTLLTT",
+  "publicado": true,
+  "fechaDeCreacion": "22-7-2021"
+ }
+]

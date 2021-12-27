@@ -1,12 +1,11 @@
 package productos
 
 import (
-	"encoding/json"
 	"errors"
-	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/matiasdestefano/go-web/pkg/store"
 )
 
 type Repository interface {
@@ -29,31 +28,51 @@ type Producto struct {
 	FechaDeCreacion string  `json:"fechaDeCreacion" validate:"required"`
 }
 
-var listaProductos []Producto
-var lastID int
+type repository struct {
+	db store.Store
+}
 
-type repository struct{}
-
-func NewRepository() Repository {
-	products, err := readFile()
-	if err != nil {
-		return &repository{}
+func NewRepository(db store.Store) Repository {
+	return &repository{
+		db: db,
 	}
-	listaProductos = products
-	return &repository{}
 }
 
 func (r *repository) GetAll() ([]Producto, error) {
+	var listaProductos []Producto
+	err := r.db.Read(&listaProductos)
+	if err != nil {
+		return []Producto{}, err
+	}
 	return listaProductos, nil
 }
 
 func (r *repository) Store(p Producto) (Producto, error) {
+	var listaProductos []Producto
+	err := r.db.Read(&listaProductos)
+	if err != nil {
+		return Producto{}, err
+	}
+	p.Id, err = r.LastID()
+	p.Id++
+	if err != nil {
+		return Producto{}, err
+	}
 	listaProductos = append(listaProductos, p)
+	err = r.db.Write(&listaProductos)
+	if err != nil {
+		return Producto{}, err
+	}
 	return p, nil
 }
 
 func (r *repository) Update(id int, p Producto) (Producto, error) {
 	var actualizado bool
+	var listaProductos []Producto
+	err := r.db.Read(&listaProductos)
+	if err != nil {
+		return Producto{}, err
+	}
 	for i, producto := range listaProductos {
 		if producto.Id == id {
 			p.Id = id
@@ -64,16 +83,30 @@ func (r *repository) Update(id int, p Producto) (Producto, error) {
 	if !actualizado {
 		return p, errors.New("no se ha encontrado el registro especificado")
 	}
+
+	err = r.db.Write(&listaProductos)
+	if err != nil {
+		return Producto{}, err
+	}
 	return p, nil
 }
 
 func (r *repository) LastID() (int, error) {
-	lastID = listaProductos[len(listaProductos)-1].Id
-	return lastID, nil
+	var listaProductos []Producto
+	err := r.db.Read(&listaProductos)
+	if err != nil {
+		return 0, err
+	}
+	return listaProductos[len(listaProductos)-1].Id, nil
 }
 
 func (r *repository) Delete(id int) error {
 	var deleted bool
+	var listaProductos []Producto
+	err := r.db.Read(&listaProductos)
+	if err != nil {
+		return err
+	}
 	for i, prod := range listaProductos {
 		if prod.Id == id {
 			listaProductos[i].Publicado = false
@@ -83,12 +116,21 @@ func (r *repository) Delete(id int) error {
 	if !deleted {
 		return errors.New("no existe el elemento especificado")
 	}
+	err = r.db.Write(&listaProductos)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (r *repository) UpdateNamePrice(ctx *gin.Context, nombre string, precio float64) (Producto, error) {
+	var listaProductos []Producto
 	var updated bool
 	var prod Producto
+	err := r.db.Read(&listaProductos)
+	if err != nil {
+		return Producto{}, err
+	}
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	for i, p := range listaProductos {
 		if p.Id == id {
@@ -101,21 +143,9 @@ func (r *repository) UpdateNamePrice(ctx *gin.Context, nombre string, precio flo
 	if !updated {
 		return Producto{}, errors.New("el elemento especificado no existe")
 	}
-	return prod, nil
-}
-
-func readFile() ([]Producto, error) {
-	productos := []Producto{}
-	jsonData, err := os.ReadFile("./products.json")
+	err = r.db.Write(&listaProductos)
 	if err != nil {
-		return productos, err
+		return Producto{}, err
 	}
-
-	errJson := json.Unmarshal(jsonData, &productos)
-	if errJson != nil {
-		return productos, err
-	}
-
-	listaProductos = productos
-	return productos, nil
+	return prod, nil
 }
