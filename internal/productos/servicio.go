@@ -3,6 +3,7 @@ package productos
 type Service interface {
 	GetAll() ([]Producto, error)
 	Store(p Producto) (Producto, error)
+	Update(id int, nombre, color string, precio float64, stock int, codigo string, publicado bool, fechaDeCreacion string) (Producto, error)
 }
 
 type service struct {
@@ -34,4 +35,13 @@ func (s *service) Store(p Producto) (Producto, error) {
 	}
 
 	return producto, nil
+}
+
+func (s *service) Update(id int, nombre, color string, precio float64, stock int, codigo string, publicado bool, fechaDeCreacion string) (Producto, error) {
+	prod := Producto{Nombre: nombre, Color: color, Precio: precio, Stock: stock, Codigo: codigo, Publicado: publicado, FechaDeCreacion: fechaDeCreacion}
+	p, err := s.repository.Update(id, prod)
+	if err != nil {
+		return p, err
+	}
+	return p, nil
 }

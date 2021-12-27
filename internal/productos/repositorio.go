@@ -2,6 +2,7 @@ package productos
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 )
 
@@ -9,6 +10,7 @@ type Repository interface {
 	GetAll() ([]Producto, error)
 	Store(Producto) (Producto, error)
 	LastID() (int, error)
+	Update(id int, p Producto) (Producto, error)
 }
 
 type Producto struct {
@@ -42,6 +44,21 @@ func (r *repository) GetAll() ([]Producto, error) {
 
 func (r *repository) Store(p Producto) (Producto, error) {
 	listaProductos = append(listaProductos, p)
+	return p, nil
+}
+
+func (r *repository) Update(id int, p Producto) (Producto, error) {
+	var actualizado bool
+	for i, producto := range listaProductos {
+		if producto.Id == id {
+			p.Id = id
+			listaProductos[i] = p
+			actualizado = true
+		}
+	}
+	if !actualizado {
+		return p, errors.New("no se ha encontrado el registro especificado")
+	}
 	return p, nil
 }
 
