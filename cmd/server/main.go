@@ -18,6 +18,7 @@ func main() {
 	productoRouter.GET("/:id", productoController.GetByID())
 	productoRouter.POST("/", productoController.Store())
 	productoRouter.PUT("/:id", productoController.Update())
+	productoRouter.DELETE("/:id", productoController.Delete())
 
 	r.Run() // localhost:8080
 }

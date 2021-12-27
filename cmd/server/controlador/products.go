@@ -45,8 +45,9 @@ func (prod *Producto) GetAll() gin.HandlerFunc {
 		listaProductos, err := prod.service.GetAll()
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
-				"error": err,
+				"error": err.Error(),
 			})
+			return
 		}
 		ctx.JSON(http.StatusOK, listaProductos)
 	}
@@ -68,6 +69,7 @@ func (prod *Producto) Store() gin.HandlerFunc {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"error": err.Error(),
 			})
+			return
 		}
 
 		v := validator.New()
@@ -87,6 +89,7 @@ func (prod *Producto) Store() gin.HandlerFunc {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"error": err.Error(),
 			})
+			return
 		}
 		ctx.JSON(http.StatusOK, p)
 	}
@@ -100,12 +103,14 @@ func (prod *Producto) GetByID() gin.HandlerFunc {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"error": err.Error(),
 			})
+			return
 		}
 		idProd, _ := strconv.Atoi(ctx.Param("id"))
 		if idProd != 0 {
 			for _, p := range productos {
 				if p.Id == idProd {
 					ctx.JSON(http.StatusOK, p)
+					return
 				}
 			}
 			existe = false
@@ -119,7 +124,7 @@ func (prod *Producto) GetByID() gin.HandlerFunc {
 func (p *Producto) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
-		err := tokenValidation(token)
+		err := validateToken(token)
 		if err != nil {
 			ctx.JSON(401, gin.H{
 				"error": err.Error()})
@@ -140,7 +145,31 @@ func (p *Producto) Update() gin.HandlerFunc {
 
 }
 
-func tokenValidation(token string) error {
+func (p *Producto) Delete() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		token := ctx.GetHeader("token")
+		err := validateToken(token)
+		if err != nil {
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		prodId, _ := strconv.Atoi(ctx.Param("id"))
+		var req request
+		ctx.ShouldBindJSON(&req)
+		err = p.service.Delete(prodId)
+		if err != nil {
+			ctx.JSON(404, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		ctx.JSON(200, "elemento eliminado correctamente")
+	}
+}
+
+func validateToken(token string) error {
 	if token != "123456" {
 		return errors.New("el token es inválido")
 	}

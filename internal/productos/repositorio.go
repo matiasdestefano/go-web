@@ -11,6 +11,7 @@ type Repository interface {
 	Store(Producto) (Producto, error)
 	LastID() (int, error)
 	Update(id int, p Producto) (Producto, error)
+	Delete(id int) error
 }
 
 type Producto struct {
@@ -65,6 +66,20 @@ func (r *repository) Update(id int, p Producto) (Producto, error) {
 func (r *repository) LastID() (int, error) {
 	lastID = listaProductos[len(listaProductos)-1].Id
 	return lastID, nil
+}
+
+func (r *repository) Delete(id int) error {
+	var deleted bool
+	for i, prod := range listaProductos {
+		if prod.Id == id {
+			listaProductos[i].Publicado = false
+			deleted = true
+		}
+	}
+	if !deleted {
+		return errors.New("no existe el elemento especificado")
+	}
+	return nil
 }
 
 func readFile() ([]Producto, error) {

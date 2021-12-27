@@ -4,6 +4,7 @@ type Service interface {
 	GetAll() ([]Producto, error)
 	Store(p Producto) (Producto, error)
 	Update(id int, nombre, color string, precio float64, stock int, codigo string, publicado bool, fechaDeCreacion string) (Producto, error)
+	Delete(id int) error
 }
 
 type service struct {
@@ -44,4 +45,8 @@ func (s *service) Update(id int, nombre, color string, precio float64, stock int
 		return p, err
 	}
 	return p, nil
+}
+
+func (s *service) Delete(id int) error {
+	return s.repository.Delete(id)
 }
