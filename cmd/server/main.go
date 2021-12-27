@@ -19,6 +19,7 @@ func main() {
 	productoRouter.POST("/", productoController.Store())
 	productoRouter.PUT("/:id", productoController.Update())
 	productoRouter.DELETE("/:id", productoController.Delete())
+	productoRouter.PATCH("/:id", productoController.UpdateNamePrice())
 
 	r.Run() // localhost:8080
 }

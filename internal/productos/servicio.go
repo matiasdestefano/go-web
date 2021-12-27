@@ -1,10 +1,15 @@
 package productos
 
+import (
+	"github.com/gin-gonic/gin"
+)
+
 type Service interface {
 	GetAll() ([]Producto, error)
 	Store(p Producto) (Producto, error)
 	Update(id int, nombre, color string, precio float64, stock int, codigo string, publicado bool, fechaDeCreacion string) (Producto, error)
 	Delete(id int) error
+	UpdateNamePrice(ctx *gin.Context, nombre string, precio float64) (Producto, error)
 }
 
 type service struct {
@@ -49,4 +54,8 @@ func (s *service) Update(id int, nombre, color string, precio float64, stock int
 
 func (s *service) Delete(id int) error {
 	return s.repository.Delete(id)
+}
+
+func (s *service) UpdateNamePrice(ctx *gin.Context, nombre string, precio float64) (Producto, error) {
+	return s.repository.UpdateNamePrice(ctx, nombre, precio)
 }

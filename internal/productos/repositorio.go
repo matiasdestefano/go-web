@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Repository interface {
@@ -12,6 +15,7 @@ type Repository interface {
 	LastID() (int, error)
 	Update(id int, p Producto) (Producto, error)
 	Delete(id int) error
+	UpdateNamePrice(ctx *gin.Context, nombre string, precio float64) (Producto, error)
 }
 
 type Producto struct {
@@ -80,6 +84,24 @@ func (r *repository) Delete(id int) error {
 		return errors.New("no existe el elemento especificado")
 	}
 	return nil
+}
+
+func (r *repository) UpdateNamePrice(ctx *gin.Context, nombre string, precio float64) (Producto, error) {
+	var updated bool
+	var prod Producto
+	id, _ := strconv.Atoi(ctx.Param("id"))
+	for i, p := range listaProductos {
+		if p.Id == id {
+			listaProductos[i].Nombre = nombre
+			listaProductos[i].Precio = precio
+			prod = listaProductos[i]
+			updated = true
+		}
+	}
+	if !updated {
+		return Producto{}, errors.New("el elemento especificado no existe")
+	}
+	return prod, nil
 }
 
 func readFile() ([]Producto, error) {

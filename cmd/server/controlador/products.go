@@ -169,6 +169,47 @@ func (p *Producto) Delete() gin.HandlerFunc {
 	}
 }
 
+func (p *Producto) UpdateNamePrice() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		token := ctx.GetHeader("token")
+		err := validateToken(token)
+		if err != nil {
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		var req request
+		ctx.ShouldBindJSON(&req)
+
+		if req.Nombre == "" {
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"error": "no se definio un nombre",
+			})
+			return
+		}
+
+		if req.Precio <= 0.0 {
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"error": "no se definio un precio valido",
+			})
+			return
+		}
+
+		prod, err := p.service.UpdateNamePrice(ctx, req.Nombre, req.Precio)
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, prod)
+		return
+	}
+}
+
 func validateToken(token string) error {
 	if token != "123456" {
 		return errors.New("el token es inválido")
