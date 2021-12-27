@@ -15,6 +15,7 @@ func main() {
 	r := gin.Default()
 	productoRouter := r.Group("/productos")
 	productoRouter.GET("/", productoController.GetAll())
+	productoRouter.GET("/:id", productoController.GetByID())
 	productoRouter.POST("/", productoController.Store())
 
 	r.Run() // localhost:8080

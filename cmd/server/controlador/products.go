@@ -2,6 +2,7 @@ package controlador
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
@@ -76,5 +77,29 @@ func (prod *Producto) Store() gin.HandlerFunc {
 			})
 		}
 		ctx.JSON(http.StatusOK, p)
+	}
+}
+
+func (prod *Producto) GetByID() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var existe bool
+		productos, err := prod.service.GetAll()
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"error": err.Error(),
+			})
+		}
+		idProd, _ := strconv.Atoi(ctx.Param("id"))
+		if idProd != 0 {
+			for _, p := range productos {
+				if p.Id == idProd {
+					ctx.JSON(http.StatusOK, p)
+				}
+			}
+			existe = false
+		}
+		if !existe {
+			ctx.JSON(http.StatusNotFound, "El producto no existe.")
+		}
 	}
 }
