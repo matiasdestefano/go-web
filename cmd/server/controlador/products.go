@@ -123,6 +123,7 @@ func (p *Producto) Update() gin.HandlerFunc {
 		if err != nil {
 			ctx.JSON(401, gin.H{
 				"error": err.Error()})
+			return
 		}
 		idProd, _ := strconv.Atoi(ctx.Param("id"))
 		var req request
@@ -132,6 +133,7 @@ func (p *Producto) Update() gin.HandlerFunc {
 			ctx.JSON(404, gin.H{
 				"error": err.Error(),
 			})
+			return
 		}
 		ctx.JSON(200, prod)
 	}
