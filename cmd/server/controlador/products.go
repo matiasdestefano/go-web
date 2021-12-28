@@ -33,6 +33,15 @@ func NewProducto(p productos.Service) *Producto {
 	}
 }
 
+// ListProducts godoc
+// @Summary List products
+// @Tags Products
+// @Description get products
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Success 200 {object} web.Response
+// @Router /productos [get]
 func (prod *Producto) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		err := validateToken(ctx.GetHeader("token"))
@@ -50,6 +59,16 @@ func (prod *Producto) GetAll() gin.HandlerFunc {
 	}
 }
 
+// StoreProducts godoc
+// @Summary Store products
+// @Tags Products
+// @Description store products
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Param product body request true "Product to store"
+// @Success 200 {object} web.Response
+// @Router /productos [post]
 func (prod *Producto) Store() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		err := validateToken(ctx.GetHeader("token"))
@@ -84,6 +103,15 @@ func (prod *Producto) Store() gin.HandlerFunc {
 	}
 }
 
+// GetProductByID godoc
+// @Summary Get product by ID
+// @Tags Products
+// @Description get product by id
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Success 200 {object} web.Response
+// @Router /productos/id [get]
 func (prod *Producto) GetByID() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		err := validateToken(ctx.GetHeader("token"))
@@ -113,6 +141,16 @@ func (prod *Producto) GetByID() gin.HandlerFunc {
 	}
 }
 
+// UpdateProduct godoc
+// @Summary Updates a product
+// @Tags Products
+// @Description updates a product
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Param product body request true "product to update"
+// @Success 200 {object} web.Response
+// @Router /productos/id [put]
 func (p *Producto) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		err := validateToken(ctx.GetHeader("token"))
@@ -133,6 +171,15 @@ func (p *Producto) Update() gin.HandlerFunc {
 
 }
 
+// DeleteProduct godoc
+// @Summary Delete product
+// @Tags Products
+// @Description delete product by id
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Success 200 {object} web.Response
+// @Router /productos/id [delete]
 func (p *Producto) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		err := validateToken(ctx.GetHeader("token"))
@@ -152,6 +199,16 @@ func (p *Producto) Delete() gin.HandlerFunc {
 	}
 }
 
+// UpdateNameAndPriceOfProduct godoc
+// @Summary Updates Name and Price of product
+// @Tags Products
+// @Description updates name and price of product
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Param product body request true "Name and price value to update"
+// @Success 200 {object} web.Response
+// @Router /productos/id [patch]
 func (p *Producto) UpdateNamePrice() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		err := validateToken(ctx.GetHeader("token"))
