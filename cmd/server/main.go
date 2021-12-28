@@ -41,12 +41,15 @@ func main() {
 	r.GET("docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	productoRouter := r.Group("/productos")
-	productoRouter.GET("/", productoHandler.GetAll())
-	productoRouter.GET("/:id", productoHandler.GetByID())
-	productoRouter.POST("/", productoHandler.Store())
-	productoRouter.PUT("/:id", productoHandler.Update())
-	productoRouter.DELETE("/:id", productoHandler.Delete())
-	productoRouter.PATCH("/:id", productoHandler.UpdateNamePrice())
+	{
+		productoRouter.Use(controlador.TokenAuthMiddleware())
+		productoRouter.GET("/", productoHandler.GetAll())
+		productoRouter.GET("/:id", productoHandler.GetByID())
+		productoRouter.POST("/", productoHandler.Store())
+		productoRouter.PUT("/:id", productoHandler.Update())
+		productoRouter.DELETE("/:id", productoHandler.Delete())
+		productoRouter.PATCH("/:id", productoHandler.UpdateNamePrice())
+	}
 
 	r.Run() // localhost:8080
 }

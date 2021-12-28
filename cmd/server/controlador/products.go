@@ -1,7 +1,7 @@
 package controlador
 
 import (
-	"errors"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -44,12 +44,6 @@ func NewProducto(p productos.Service) *Producto {
 // @Router /productos [get]
 func (prod *Producto) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		err := validateToken(ctx.GetHeader("token"))
-		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, err.Error()))
-			return
-		}
-
 		listaProductos, err := prod.service.GetAll()
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
@@ -71,14 +65,8 @@ func (prod *Producto) GetAll() gin.HandlerFunc {
 // @Router /productos [post]
 func (prod *Producto) Store() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		err := validateToken(ctx.GetHeader("token"))
-		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, err.Error()))
-			return
-		}
-
 		var req productos.Producto
-		err = ctx.ShouldBindJSON(&req)
+		err := ctx.ShouldBindJSON(&req)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
 			return
@@ -114,11 +102,6 @@ func (prod *Producto) Store() gin.HandlerFunc {
 // @Router /productos/id [get]
 func (prod *Producto) GetByID() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		err := validateToken(ctx.GetHeader("token"))
-		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, err.Error()))
-			return
-		}
 		var existe bool
 		productos, err := prod.service.GetAll()
 		if err != nil {
@@ -153,11 +136,6 @@ func (prod *Producto) GetByID() gin.HandlerFunc {
 // @Router /productos/id [put]
 func (p *Producto) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		err := validateToken(ctx.GetHeader("token"))
-		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, err.Error()))
-			return
-		}
 		idProd, _ := strconv.Atoi(ctx.Param("id"))
 		var req request
 		ctx.ShouldBindJSON(&req)
@@ -182,15 +160,10 @@ func (p *Producto) Update() gin.HandlerFunc {
 // @Router /productos/id [delete]
 func (p *Producto) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		err := validateToken(ctx.GetHeader("token"))
-		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, err.Error()))
-			return
-		}
 		prodId, _ := strconv.Atoi(ctx.Param("id"))
 		var req request
 		ctx.ShouldBindJSON(&req)
-		err = p.service.Delete(prodId)
+		err := p.service.Delete(prodId)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
 			return
@@ -211,12 +184,6 @@ func (p *Producto) Delete() gin.HandlerFunc {
 // @Router /productos/id [patch]
 func (p *Producto) UpdateNamePrice() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		err := validateToken(ctx.GetHeader("token"))
-		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, err.Error()))
-			return
-		}
-
 		var req request
 		ctx.ShouldBindJSON(&req)
 
@@ -239,9 +206,24 @@ func (p *Producto) UpdateNamePrice() gin.HandlerFunc {
 	}
 }
 
-func validateToken(token string) error {
-	if token != os.Getenv("TOKEN") {
-		return errors.New("el token es inválido")
+func TokenAuthMiddleware() gin.HandlerFunc {
+	requiredToken := os.Getenv("TOKEN")
+
+	if requiredToken == "" {
+		log.Fatal("Por favor establecer el valor de la variable de entorno TOKEN")
 	}
-	return nil
+
+	return func(ctx *gin.Context) {
+		token := ctx.GetHeader("token")
+		if token == "" {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, "se requiere el token de la api"))
+			return
+		}
+
+		if token != requiredToken {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, "el token es invalido"))
+			return
+		}
+		ctx.Next()
+	}
 }

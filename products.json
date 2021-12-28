@@ -48,5 +48,15 @@
   "codigo": "BTLLTT",
   "publicado": true,
   "fechaDeCreacion": "22-7-2021"
+ },
+ {
+  "id": 6,
+  "nombre": "Botella",
+  "color": "Marrón",
+  "precio": 500,
+  "stock": 305,
+  "codigo": "BTLLTT",
+  "publicado": true,
+  "fechaDeCreacion": "22-7-2021"
  }
 ]
