@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
 	"github.com/matiasdestefano/go-web/internal/productos"
+	"github.com/matiasdestefano/go-web/pkg/web"
 )
 
 type request struct {
@@ -36,20 +37,16 @@ func (prod *Producto) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		err := validateToken(ctx.GetHeader("token"))
 		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "token inválido",
-			})
+			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, err.Error()))
 			return
 		}
 
 		listaProductos, err := prod.service.GetAll()
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
 			return
 		}
-		ctx.JSON(http.StatusOK, listaProductos)
+		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, listaProductos, ""))
 	}
 }
 
@@ -57,18 +54,14 @@ func (prod *Producto) Store() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		err := validateToken(ctx.GetHeader("token"))
 		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "token inválido",
-			})
+			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, err.Error()))
 			return
 		}
 
 		var req productos.Producto
 		err = ctx.ShouldBindJSON(&req)
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
 			return
 		}
 
@@ -77,21 +70,17 @@ func (prod *Producto) Store() gin.HandlerFunc {
 		if err != nil {
 			for _, err := range err.(validator.ValidationErrors) {
 				mensaje := "el campo " + err.Field() + " es requerido"
-				ctx.JSON(http.StatusNotFound, gin.H{
-					"error": mensaje,
-				})
+				ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, mensaje))
 				return
 			}
 		}
 
 		p, err := prod.service.Store(req)
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
 			return
 		}
-		ctx.JSON(http.StatusOK, p)
+		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, p, ""))
 	}
 }
 
@@ -99,31 +88,27 @@ func (prod *Producto) GetByID() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		err := validateToken(ctx.GetHeader("token"))
 		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "token inválido",
-			})
+			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, err.Error()))
 			return
 		}
 		var existe bool
 		productos, err := prod.service.GetAll()
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
 			return
 		}
 		idProd, _ := strconv.Atoi(ctx.Param("id"))
 		if idProd != 0 {
 			for _, p := range productos {
 				if p.Id == idProd {
-					ctx.JSON(http.StatusOK, p)
+					ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, p, ""))
 					return
 				}
 			}
 			existe = false
 		}
 		if !existe {
-			ctx.JSON(http.StatusNotFound, "El producto no existe.")
+			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, "el producto no existe"))
 		}
 	}
 }
@@ -132,9 +117,7 @@ func (p *Producto) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		err := validateToken(ctx.GetHeader("token"))
 		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "token inválido",
-			})
+			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, err.Error()))
 			return
 		}
 		idProd, _ := strconv.Atoi(ctx.Param("id"))
@@ -142,12 +125,10 @@ func (p *Producto) Update() gin.HandlerFunc {
 		ctx.ShouldBindJSON(&req)
 		prod, err := p.service.Update(idProd, req.Nombre, req.Color, req.Precio, req.Stock, req.Codigo, req.Publicado, req.FechaDeCreacion)
 		if err != nil {
-			ctx.JSON(404, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, err.Error()))
 			return
 		}
-		ctx.JSON(200, prod)
+		ctx.JSON(200, web.NewResponse(http.StatusOK, prod, ""))
 	}
 
 }
@@ -156,9 +137,7 @@ func (p *Producto) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		err := validateToken(ctx.GetHeader("token"))
 		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "token inválido",
-			})
+			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, err.Error()))
 			return
 		}
 		prodId, _ := strconv.Atoi(ctx.Param("id"))
@@ -166,9 +145,7 @@ func (p *Producto) Delete() gin.HandlerFunc {
 		ctx.ShouldBindJSON(&req)
 		err = p.service.Delete(prodId)
 		if err != nil {
-			ctx.JSON(404, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
 			return
 		}
 		ctx.JSON(200, "elemento eliminado correctamente")
@@ -179,9 +156,7 @@ func (p *Producto) UpdateNamePrice() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		err := validateToken(ctx.GetHeader("token"))
 		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "token inválido",
-			})
+			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, err.Error()))
 			return
 		}
 
@@ -189,27 +164,21 @@ func (p *Producto) UpdateNamePrice() gin.HandlerFunc {
 		ctx.ShouldBindJSON(&req)
 
 		if req.Nombre == "" {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "no se definio un nombre",
-			})
+			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, "no se definió un nombre"))
 			return
 		}
 
 		if req.Precio <= 0.0 {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "no se definio un precio valido",
-			})
+			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, "no se definió un precio válido"))
 			return
 		}
 
 		prod, err := p.service.UpdateNamePrice(ctx, req.Nombre, req.Precio)
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, err.Error()))
 			return
 		}
-		ctx.JSON(http.StatusOK, prod)
+		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, prod, ""))
 	}
 }
 
