@@ -131,6 +131,7 @@ func (r *repository) UpdateNamePrice(ctx *gin.Context, nombre string, precio flo
 	if err != nil {
 		return Producto{}, err
 	}
+
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	for i, p := range listaProductos {
 		if p.Id == id {
