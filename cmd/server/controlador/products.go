@@ -138,7 +138,10 @@ func (p *Producto) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		idProd, _ := strconv.Atoi(ctx.Param("id"))
 		var req request
-		ctx.ShouldBindJSON(&req)
+		err := ctx.ShouldBindJSON(&req)
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
+		}
 		prod, err := p.service.Update(idProd, req.Nombre, req.Color, req.Precio, req.Stock, req.Codigo, req.Publicado, req.FechaDeCreacion)
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, err.Error()))
@@ -162,8 +165,11 @@ func (p *Producto) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		prodId, _ := strconv.Atoi(ctx.Param("id"))
 		var req request
-		ctx.ShouldBindJSON(&req)
-		err := p.service.Delete(prodId)
+		err := ctx.ShouldBindJSON(&req)
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
+		}
+		err = p.service.Delete(prodId)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
 			return
@@ -185,7 +191,10 @@ func (p *Producto) Delete() gin.HandlerFunc {
 func (p *Producto) UpdateNamePrice() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req request
-		ctx.ShouldBindJSON(&req)
+		err := ctx.ShouldBindJSON(&req)
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
+		}
 
 		if req.Nombre == "" {
 			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, "no se definió un nombre"))

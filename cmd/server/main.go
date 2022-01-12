@@ -51,5 +51,8 @@ func main() {
 		productoRouter.PATCH("/:id", productoHandler.UpdateNamePrice())
 	}
 
-	r.Run() // localhost:8080
+	err = r.Run() // localhost:8080
+	if err != nil {
+		panic(err)
+	}
 }
